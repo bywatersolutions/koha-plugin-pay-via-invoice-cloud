@@ -1,0 +1,33 @@
+[% INCLUDE 'doc-head-open.inc' %]
+ <title>Koha: Plugin: Pay Via Cloud Invoice: Configuration</title>
+[% INCLUDE 'doc-head-close.inc' %]
+</head>
+<body>
+[% INCLUDE 'header.inc' %]
+[% INCLUDE 'cat-search.inc' %]
+
+<div id="breadcrumbs"><a href="/cgi-bin/koha/mainpage.pl">Home</a> &rsaquo; <a href="/cgi-bin/koha/plugins/plugins-home.pl">Plugins</a> &rsaquo; Pay Via Cloud Invoice &rsaquo; Configuration</div>
+
+<div id="doc3">
+    <!-- We can access our own plugins resource files using the PLUGIN_PATH variable. -->
+    <h3>Koha: Plugin: Pay Via Cloud Invoice: Configuration</h3>
+
+	<form method='get'>
+	  <input type="hidden" name="class" value="[% CLASS %]"/>
+	  <input type="hidden" name="method" value="[% METHOD %]"/>
+	  <input type="hidden" name="save" value="1" />
+
+	  <div class="form-group">
+		<label for="orderType">Biller GUID: </label>
+		<input type="text" class="form-control" name="biller_guid" value="[% biller_guid %]" />
+	  </div>
+
+	  <div class="form-group">
+		<label for="key">Invoice Type ID: </label>
+		<input type="text" class="form-control" name="invoice_type_id" value="[% invoice_type_id %]" />
+	  </div>
+
+	  <button type="submit" class="btn btn-default">Save</button>
+	</form>
+
+[% INCLUDE 'intranet-bottom.inc' %]

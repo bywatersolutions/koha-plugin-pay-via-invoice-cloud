@@ -1,0 +1,138 @@
+{
+  "/payment":{
+    "post":{
+      "x-mojo-to":"Com::ByWaterSolutions::PayViaCloudInvoice::API#handle_payment",
+      "operationId":"handlePayment",
+      "tags":[
+        "cloud-invoice"
+      ],
+      "parameters": [
+        {
+          "name": "BillerGUID",
+          "in": "query",
+          "required": false,
+          "type": "string"
+        },
+        {
+          "name": "PaymentDate",
+          "in": "query",
+          "required": false,
+          "type": "string"
+        },
+        {
+          "name": "InvoiceNumber",
+          "in": "query",
+          "required": false,
+          "type": "string"
+        },
+        {
+          "name": "Approved",
+          "in": "query",
+          "required": false,
+          "type": "string"
+        },
+        {
+          "name": "CustomerName",
+          "in": "query",
+          "required": false,
+          "type": "string"
+        },
+        {
+          "name": "CustomerAddress",
+          "in": "query",
+          "required": false,
+          "type": "string"
+        },
+        {
+          "name": "CustomerCity",
+          "in": "query",
+          "required": false,
+          "type": "string"
+        },
+        {
+          "name": "CustomerState",
+          "in": "query",
+          "required": false,
+          "type": "string"
+        },
+        {
+          "name": "CustomerZip",
+          "in": "query",
+          "required": false,
+          "type": "string"
+        },
+        {
+          "name": "PaymentGUID",
+          "in": "query",
+          "required": false,
+          "type": "string"
+        },
+        {
+          "name": "PaymentAmount",
+          "in": "query",
+          "required": false,
+          "type": "string"
+        },
+        {
+          "name": "PaymentDescription",
+          "in": "query",
+          "required": false,
+          "type": "string"
+        },
+        {
+          "name": "PaymentTypeID",
+          "in": "query",
+          "required": false,
+          "type": "string"
+        },
+        {
+          "name": "CardType",
+          "in": "query",
+          "required": false,
+          "type": "string"
+        },
+        {
+          "name": "PaymentMessage",
+          "in": "query",
+          "required": false,
+          "type": "string"
+        },
+        {
+          "name": "BillerReference",
+          "in": "query",
+          "required": false,
+          "type": "string"
+        },
+        {
+          "name": "ConvenienceFee",
+          "in": "query",
+          "required": false,
+          "type": "string"
+        },
+        {
+          "name": "RemoteIP",
+          "in": "query",
+          "required": false,
+          "type": "string"
+        }
+      ],
+      "responses":{
+        "200":{
+          "description":"Payment accepted"
+        },
+        "404":{
+          "description":"An error occured",
+          "schema":{
+            "type":"object",
+            "properties":{
+              "error":{
+                "description":"An explanation for the error",
+                "type":"string"
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
