@@ -1,4 +1,4 @@
-[% INCLUDE 'dmc-head-open.inc' %]
+[% INCLUDE 'doc-head-open.inc' %]
 <title>[% IF ( LibraryNameTitle ) %][% LibraryNameTitle | html %][% ELSE %]Koha online[% END %] catalog &rsaquo; Pay your fines and charges</title>
 [% INCLUDE 'doc-head-close.inc' %]
 [% BLOCK cssinclude %][% END %]
@@ -79,9 +79,9 @@
                         </tfoot>
                     </table>
 
-                    <form method="GET" action="https://wwww.invoicecloud.com/portal/cloudpayment.aspx">
+                    <form method="POST" action="https://wwww.invoicecloud.com/portal/cloudpayment.aspx">
                         [% FOREACH p IN url_params %]
-                            <input type="hidden" name="[% p.key | html %]" value="[% p.value | uri %]"/>
+                            <input type="hidden" name="[% p.key | uri %]" value="[% p.val | uri %]"/>
                         [% END %]
                         <input type="submit" class="btn btn-primary" value="Yes, proceed with payment"/>
                     </form>

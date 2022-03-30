@@ -54,7 +54,7 @@ sub opac_online_payment_begin {
     my ( $self, $args ) = @_;
     my $cgi = $self->{'cgi'};
 
-    my ( $template, $borrowernumber ) = get_template_and_user(
+    my ( $template, $borrowernumber ) = C4::Auth::get_template_and_user(
         {
             template_name   => $self->mbf_path('opac_online_payment_begin.tt'),
             query           => $cgi,
@@ -103,7 +103,7 @@ sub opac_online_payment_begin {
         },    # InvoiceTypeId, must be enabled for Biller
         {
             key => 'customer_name',
-            val => $patron->firstname . $patron->surname
+            val => $patron->firstname . ' ' . $patron->surname
         },
         {
             key => 'customer_address',
