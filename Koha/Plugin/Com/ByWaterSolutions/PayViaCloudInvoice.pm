@@ -202,7 +202,7 @@ sub configure {
 
         ## Grab the values we already have for our settings, if any exist
         $template->param(
-            biller_guid     => $self->retrieve_data('order_type'),
+            biller_guid     => $self->retrieve_data('biller_guid'),
             invoice_type_id => $self->retrieve_data('invoice_type_id'),
         );
 
