@@ -2,7 +2,7 @@ package Koha::Plugin::Com::ByWaterSolutions::PayViaCloudInvoice;
 
 use Modern::Perl;
 
-use JSON qw(to_json);
+use JSON qw(from_json to_json);
 use List::Util qw(sum);
 
 ## Required for all plugins
@@ -89,8 +89,6 @@ sub opac_online_payment_begin {
       . "/cgi-bin/koha/opac-account-pay-return.pl?payment_method=Koha::Plugin::Com::ByWaterSolutions::PayViaCloudInvoice?token=$token";
     my $postback_url = C4::Context->preference('OPACBaseURL')
       . "/api/v1/contrib/cloudinvoice/handle_payment";
-    my $post_url = "https://www.invoicecloud.com/cloudpaymentsapi/v2";
-    my $api_key  = $self->retrieve_data('api_key');
 
     my $data = {
         "CreateCustomerRecord" => JSON::true,
@@ -123,15 +121,19 @@ sub opac_online_payment_begin {
         "ViewMode"        => 0,
     };
 
-    my $req = HTTP::Request->new( 'POST', $uri );
+    my $post_url = "https://www.invoicecloud.com/cloudpaymentsapi/v2";
+    my $api_key  = $self->retrieve_data('api_key');
+
+    my $req = HTTP::Request->new( 'POST', $post_url );
     $req->header( 'Content-Type'  => 'application/json' );
     $req->header( 'Authorization' => "Basic $api_key" );
-    $req->content($json);
-    my $lwp = LWP::UserAgent->new;
+    $req->content( to_json($data) );
+
+    my $lwp      = LWP::UserAgent->new;
     my $response = $lwp->request($req);
-    die "Failed to connect to Cloud Invoice" unless $resp->is_success;
-    my $message = from_json( $resp->decoded_content );
-    warn "RESPONSE MESSAGE: " . Data::Dumper::Dumper( $message );
+    die "Failed to connect to Cloud Invoice" unless $response->is_success;
+    my $message = from_json( $response->decoded_content );
+    warn "RESPONSE MESSAGE: " . Data::Dumper::Dumper($message);
     my $cloud_payment_url = $message->{Data}->{CloudPaymentURL};
 
     $template->param(
@@ -197,7 +199,7 @@ sub configure {
 
         ## Grab the values we already have for our settings, if any exist
         $template->param(
-            api_key     => $self->retrieve_data('api_key'),
+            api_key         => $self->retrieve_data('api_key'),
             invoice_type_id => $self->retrieve_data('invoice_type_id'),
         );
 
@@ -207,7 +209,7 @@ sub configure {
     else {
         $self->store_data(
             {
-                api_key     => $cgi->param('api_key'),
+                api_key         => $cgi->param('api_key'),
                 invoice_type_id => $cgi->param('invoice_type_id'),
             }
         );
