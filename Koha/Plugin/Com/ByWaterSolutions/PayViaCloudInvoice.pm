@@ -2,6 +2,9 @@ package Koha::Plugin::Com::ByWaterSolutions::PayViaCloudInvoice;
 
 use Modern::Perl;
 
+use JSON qw(to_json);
+use List::Util qw(sum);
+
 ## Required for all plugins
 use base qw(Koha::Plugins::Base);
 
@@ -10,18 +13,18 @@ use C4::Context;
 use C4::Auth;
 use Koha::Account;
 use Koha::Account::Lines;
-use List::Util qw(sum);
 
 ## Here we set our plugin version
 our $VERSION = "{VERSION}";
 
 ## Here is our metadata, some keys are required, some are optional
 our $metadata = {
-    name          => 'Pay Via Cloud Invoice',
-    author        => 'Kyle M Hall',
-    description   => 'This plugin enables online OPAC fee payments via Cloud Invoice',
-    date_authored => '2020-04-14',
-    date_updated  => '1900-01-01',
+    name        => 'Pay Via Cloud Invoice',
+    author      => 'Kyle M Hall',
+    description =>
+      'This plugin enables online OPAC fee payments via Cloud Invoice',
+    date_authored   => '2020-04-14',
+    date_updated    => '1900-01-01',
     minimum_version => '19.05.00.000',
     maximum_version => undef,
     version         => $VERSION,
@@ -76,74 +79,66 @@ sub opac_online_payment_begin {
         q{
         INSERT INTO cloud_invoice_plugin_tokens ( token, borrowernumber, accountline_ids )
         VALUES ( ?, ?, ? )
-    }, undef, $token, $borrowernumber, join(",", @accountline_ids )
+    }, undef, $token, $borrowernumber, join( ",", @accountline_ids )
     );
 
-    my $amount = sprintf("%.2f", sum( map { $_->amountoutstanding } @accountlines ) );
+    my $amount =
+      sprintf( "%.2f", sum( map { $_->amountoutstanding } @accountlines ) );
 
-    my $return_url = C4::Context->preference('OPACBaseURL') . "/cgi-bin/koha/opac-account-pay-return.pl?payment_method=Koha::Plugin::Com::ByWaterSolutions::PayViaCloudInvoice?token=$token";
-    my $postback_url = C4::Context->preference('OPACBaseURL') . "/api/v1/???????";
+    my $return_url = C4::Context->preference('OPACBaseURL')
+      . "/cgi-bin/koha/opac-account-pay-return.pl?payment_method=Koha::Plugin::Com::ByWaterSolutions::PayViaCloudInvoice?token=$token";
+    my $postback_url = C4::Context->preference('OPACBaseURL')
+      . "/api/v1/contrib/cloudinvoice/handle_payment";
+    my $post_url = "https://www.invoicecloud.com/cloudpaymentsapi/v2";
+    my $api_key  = $self->retrieve_data('api_key');
 
-    my $url_params = [
-        {
-            key => 'biller_guid',
-            val => $self->retrieve_data('biller_guid')
-        },    # BillerGUID issued for specifc Biller
-        {
-            key => 'invoice_number',
-            val => $token
-        },
-        {
-            key => 'balance_due',
-            val => $amount
-        },
-        {
-            key => 'invoice_type_id',
-            val => $self->retrieve_data('invoice_type_id')
-        },    # InvoiceTypeId, must be enabled for Biller
-        {
-            key => 'customer_name',
-            val => $patron->firstname . ' ' . $patron->surname
-        },
-        {
-            key => 'customer_address',
-            val => $patron->streetnumber . ' ' . $patron->address
-        },
-        {
-            key => 'customer_city',
-            val => $patron->city
-        },
-        {
-            key => 'customer_state',
-            val => $patron->state
-        },
-        {
-            key => 'customer_zip',
-            val => $patron->zipcode
-        },
-        {
-            key => 'customer_email_address',
-            val => $patron->first_valid_email_address
-        },
-        {
-            key => 'biller_reference',
-            val => $patron->id
-        },
-        {
-            key => 'return_url',
-            val => $return_url
-        },
-        {
-            key => 'postback_url',
-            val => $postback_url
-        },
-    ];
+    my $data = {
+        "CreateCustomerRecord" => JSON::true,
+        "Customers"            => [
+            {
+                "AccountNumber" => $patron->id,
+                "Name"          => $patron->firstname . ' ' . $patron->surname,
+                "Address" => $patron->streetnumber . ' ' . $patron->address,
+                ,
+                "City"         => $patron->city,
+                "State"        => $patron->state,
+                "Zip"          => $patron->zipcode,
+                "EmailAddress" => $patron->first_valid_email_address,
+                ,
+                "Invoices" => [
+                    {
+                        "InvoiceNumber" => $token,
+                        "TypeID"     => $self->retrieve_data('invoice_type_id'),
+                        "BalanceDue" => $amount,
+                    }
+                ]
+            }
+        ],
+        "AllowSwipe"      => JSON::false,
+        "AllowCCPayment"  => JSON::true,
+        "AllowACHPayment" => JSON::false,
+        "ReturnURL"       => $return_url,
+        "PostBackURL"     => $postback_url,
+        "BillerReference" => $patron->id,
+        "ViewMode"        => 0,
+    };
+
+    my $req = HTTP::Request->new( 'POST', $uri );
+    $req->header( 'Content-Type'  => 'application/json' );
+    $req->header( 'Authorization' => "Basic $api_key" );
+    $req->content($json);
+    my $lwp = LWP::UserAgent->new;
+    my $response = $lwp->request($req);
+    die "Failed to connect to Cloud Invoice" unless $resp->is_success;
+    my $message = from_json( $resp->decoded_content );
+    warn "RESPONSE MESSAGE: " . Data::Dumper::Dumper( $message );
+    my $cloud_payment_url = $message->{Data}->{CloudPaymentURL};
 
     $template->param(
-        borrower             => $patron,
-        url_params           => $url_params,
-        payment_method       => scalar $cgi->param('payment_method'),
-        accountlines         => \@accountlines,
+        borrower          => $patron,
+        cloud_payment_url => $cloud_payment_url,
+        accountlines      => \@accountlines,
+        payment_method    => scalar $cgi->param('payment_method'),
     );
 
     print $cgi->header();
@@ -202,7 +197,7 @@ sub configure {
 
         ## Grab the values we already have for our settings, if any exist
         $template->param(
-            biller_guid     => $self->retrieve_data('biller_guid'),
+            api_key     => $self->retrieve_data('api_key'),
             invoice_type_id => $self->retrieve_data('invoice_type_id'),
         );
 
@@ -212,7 +207,7 @@ sub configure {
     else {
         $self->store_data(
             {
-                biller_guid     => $cgi->param('biller_guid'),
+                api_key     => $cgi->param('api_key'),
                 invoice_type_id => $cgi->param('invoice_type_id'),
             }
         );

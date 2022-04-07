@@ -18,8 +18,8 @@
 	  <input type="hidden" name="save" value="1" />
 
 	  <div class="form-group">
-		<label for="orderType">Biller GUID: </label>
-		<input type="text" class="form-control" name="biller_guid" value="[% biller_guid %]" />
+		<label for="orderType">Application API key: </label>
+		<input type="text" class="form-control" name="api_key" value="[% api_key %]" />
 	  </div>
 
 	  <div class="form-group">

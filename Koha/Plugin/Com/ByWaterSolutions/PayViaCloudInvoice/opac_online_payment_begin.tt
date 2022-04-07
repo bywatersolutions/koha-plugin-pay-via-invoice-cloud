@@ -79,12 +79,7 @@
                         </tfoot>
                     </table>
 
-                    <form method="POST" action="https://wwww.invoicecloud.com/portal/cloudpayment.aspx">
-                        [% FOREACH p IN url_params %]
-                            <input type="hidden" name="[% p.key | uri %]" value="[% p.val | uri %]"/>
-                        [% END %]
-                        <input type="submit" class="btn btn-primary" value="Yes, proceed with payment"/>
-                    </form>
+                    <a class="btn btn-primary" href="[% cloud_payment_url %]">Yes, proceed with payment</a>
 
                 </div> <!-- / #useraccount -->
             </div> <!-- / .col-10 -->
