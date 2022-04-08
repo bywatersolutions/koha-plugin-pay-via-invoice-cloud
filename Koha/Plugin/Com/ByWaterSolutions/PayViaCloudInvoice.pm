@@ -4,6 +4,8 @@ use Modern::Perl;
 
 use JSON qw(from_json to_json);
 use List::Util qw(sum);
+use HTTP::Request;
+use LWP::UserAgent;
 
 ## Required for all plugins
 use base qw(Koha::Plugins::Base);
@@ -131,7 +133,11 @@ sub opac_online_payment_begin {
 
     my $lwp      = LWP::UserAgent->new;
     my $response = $lwp->request($req);
-    die "Failed to connect to Cloud Invoice" unless $response->is_success;
+    unless ( $response->is_success ) {
+        warn "REQUEST: " . $req->as_string;
+        warn "RESPONSE: " . $response->as_string;
+        die "Failed to connect to Cloud Invoice! " . $response->status_line;
+    }
     my $message = from_json( $response->decoded_content );
     warn "RESPONSE MESSAGE: " . Data::Dumper::Dumper($message);
     my $cloud_payment_url = $message->{Data}->{CloudPaymentURL};
