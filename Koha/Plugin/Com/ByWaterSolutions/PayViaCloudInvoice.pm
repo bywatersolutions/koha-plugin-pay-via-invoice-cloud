@@ -16,6 +16,7 @@ use C4::Context;
 use C4::Auth;
 use Koha::Account;
 use Koha::Account::Lines;
+use Koha::DateUtils qw( dt_from_string output_pref );
 
 ## Here we set our plugin version
 our $VERSION = "{VERSION}";
@@ -109,9 +110,12 @@ sub opac_online_payment_begin {
                 "Invoices" => [
                     {
                         "InvoiceNumber" => $token,
-                        "TypeID"     => $self->retrieve_data('invoice_type_id'),
-                        "BalanceDue" => $amount,
-                        "CCServiceFee" => $self->retrieve_data('cc_service_fee'),
+                        "TypeID"        => $self->retrieve_data('invoice_type_id'),
+                        "BalanceDue"    => $amount,
+                        "CCServiceFee"  => $self->retrieve_data('cc_service_fee'),
+                        "ACHServiceFee" => $self->retrieve_data('cc_service_fee'),
+                        "DueDate"       => output_pref( dt_from_string ),
+                        "InvoiceDate"   => output_pref( dt_from_string ),
                     }
                 ]
             }
