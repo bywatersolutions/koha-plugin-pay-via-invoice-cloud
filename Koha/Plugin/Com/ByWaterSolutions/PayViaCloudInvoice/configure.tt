@@ -27,6 +27,11 @@
 		<input type="text" class="form-control" name="invoice_type_id" value="[% invoice_type_id %]" />
 	  </div>
 
+	  <div class="form-group">
+		<label for="key">Credit Card Service Fee: </label>
+		<input type="text" class="form-control" name="cc_service_fee" value="[% cc_service_fee %]" />
+	  </div>
+
 	  <button type="submit" class="btn btn-default">Save</button>
 	</form>
 

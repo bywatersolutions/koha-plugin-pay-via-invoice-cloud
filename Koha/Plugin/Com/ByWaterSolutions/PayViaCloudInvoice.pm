@@ -2,10 +2,11 @@ package Koha::Plugin::Com::ByWaterSolutions::PayViaCloudInvoice;
 
 use Modern::Perl;
 
-use JSON qw(from_json to_json);
-use List::Util qw(sum);
 use HTTP::Request;
+use JSON qw(from_json to_json);
 use LWP::UserAgent;
+use List::Util qw(sum);
+use MIME::Base64 qw( encode_base64 );
 
 ## Required for all plugins
 use base qw(Koha::Plugins::Base);
@@ -110,6 +111,7 @@ sub opac_online_payment_begin {
                         "InvoiceNumber" => $token,
                         "TypeID"     => $self->retrieve_data('invoice_type_id'),
                         "BalanceDue" => $amount,
+                        "CCServiceFee" => $self->retrieve_data('cc_service_fee'),
                     }
                 ]
             }
@@ -124,7 +126,7 @@ sub opac_online_payment_begin {
     };
 
     my $post_url = "https://www.invoicecloud.com/cloudpaymentsapi/v2";
-    my $api_key  = $self->retrieve_data('api_key');
+    my $api_key  = encode_base64( $self->retrieve_data('api_key') );
 
     my $req = HTTP::Request->new( 'POST', $post_url );
     $req->header( 'Content-Type'  => 'application/json' );
@@ -207,6 +209,7 @@ sub configure {
         $template->param(
             api_key         => $self->retrieve_data('api_key'),
             invoice_type_id => $self->retrieve_data('invoice_type_id'),
+            cc_service_fee  => $self->retrieve_data('cc_service_fee'),
         );
 
         print $cgi->header();
@@ -217,6 +220,7 @@ sub configure {
             {
                 api_key         => $cgi->param('api_key'),
                 invoice_type_id => $cgi->param('invoice_type_id'),
+                cc_service_fee  => $cgi->param('cc_service_fee'),
             }
         );
         $self->go_home();
