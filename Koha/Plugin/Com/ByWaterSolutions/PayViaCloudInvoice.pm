@@ -3,7 +3,7 @@ package Koha::Plugin::Com::ByWaterSolutions::PayViaCloudInvoice;
 use Modern::Perl;
 
 use HTTP::Request;
-use JSON qw(from_json to_json);
+use JSON qw(from_json to_json decode_json);
 use LWP::UserAgent;
 use List::Util qw(sum);
 use MIME::Base64 qw( encode_base64 );
@@ -249,6 +249,8 @@ sub install() {
 		DEFAULT charset=utf8mb4
 		COLLATE=utf8mb4_unicode_ci;
     };
+
+    $dbh->do($query);
 
     return 1;
 }
