@@ -90,9 +90,9 @@ sub opac_online_payment_begin {
       sprintf( "%.2f", sum( map { $_->amountoutstanding } @accountlines ) );
 
     my $return_url = C4::Context->preference('OPACBaseURL')
-      . "/cgi-bin/koha/opac-account-pay-return.pl?payment_method=Koha::Plugin::Com::ByWaterSolutions::PayViaCloudInvoice?token=$token";
+      . "/cgi-bin/koha/opac-account-pay-return.pl?payment_method=Koha::Plugin::Com::ByWaterSolutions::PayViaCloudInvoice&token=$token";
     my $postback_url = C4::Context->preference('OPACBaseURL')
-      . "/api/v1/contrib/cloudinvoice/handle_payment";
+      . "/api/v1/contrib/cloudinvoice/payment";
 
     my $data = {
         "CreateCustomerRecord" => JSON::true,
@@ -114,8 +114,8 @@ sub opac_online_payment_begin {
                         "BalanceDue"    => $amount,
                         "CCServiceFee"  => $self->retrieve_data('cc_service_fee'),
                         "ACHServiceFee" => $self->retrieve_data('cc_service_fee'),
-                        "DueDate"       => output_pref( dt_from_string ),
-                        "InvoiceDate"   => output_pref( dt_from_string ),
+                        "DueDate"       => output_pref( { dt => dt_from_string, dateonly => 1 } ),
+                        "InvoiceDate"   => output_pref( { dt => dt_from_string, dateonly => 1 } ),
                     }
                 ]
             }
@@ -128,6 +128,7 @@ sub opac_online_payment_begin {
         "BillerReference" => $patron->id,
         "ViewMode"        => 0,
     };
+    warn "POST DATA: " . Data::Dumper::Dumper( $data );
 
     my $post_url = "https://www.invoicecloud.com/cloudpaymentsapi/v2";
     my $api_key  = encode_base64( $self->retrieve_data('api_key') );
@@ -163,7 +164,7 @@ sub opac_online_payment_end {
     my ( $self, $args ) = @_;
     my $cgi = $self->{'cgi'};
 
-    my ( $template, $logged_in_borrowernumber ) = get_template_and_user(
+    my ( $template, $logged_in_borrowernumber ) = C4::Auth::get_template_and_user(
         {
             template_name   => $self->mbf_path('opac_online_payment_end.tt'),
             query           => $cgi,
@@ -177,10 +178,11 @@ sub opac_online_payment_end {
     my $dbh      = C4::Context->dbh;
     my $query    = "SELECT * FROM cloud_invoice_plugin_tokens WHERE token = ?";
     my $token_hr = $dbh->selectrow_hashref( $query, undef, $token );
+    warn "TOKEN: " . Data::Dumper::Dumper( $token_hr );
 
     $template->param(
         borrower => scalar Koha::Patrons->find($logged_in_borrowernumber),
-        token    => $token,
+        token    => $token_hr,
     );
 
     print $cgi->header();

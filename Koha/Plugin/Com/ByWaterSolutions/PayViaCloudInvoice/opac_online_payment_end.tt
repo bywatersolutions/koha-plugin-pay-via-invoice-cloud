@@ -1,7 +1,7 @@
 [% USE Koha %]
 [% USE KohaDates %]
 
-[% INCLUDE 'doc-head-open.inc' %][% IF ( LibraryNameTitle ) %][% LibraryNameTitle %][% ELSE %]Koha online[% END %] catalog &rsaquo; Pay your fines and charges
+[% INCLUDE 'doc-head-open.inc' %]
 [% INCLUDE 'doc-head-close.inc' %]
 [% BLOCK cssinclude %][% END %]
 </head>
@@ -9,21 +9,29 @@
 [% INCLUDE 'masthead.inc' %]
 
 <div class="main">
-    <ul class="breadcrumb">
-        <li><a href="/cgi-bin/koha/opac-main.pl">Home</a> <span class="divider">&rsaquo;</span></li>
-        <li><a href="/cgi-bin/koha/opac-user.pl">[% borrower.firstname %] [% borrower.surname %]</a><span class="divider">&rsaquo;</span></li>
-        <li><a href="#">Payment results</a></li>
-    </ul>
+    <nav id="breadcrumbs" aria-label="Breadcrumb" class="breadcrumbs">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item">
+                <a href="/cgi-bin/koha/opac-main.pl">Home</a>
+            </li>
+            <li class="breadcrumb-item">
+                <a href="/cgi-bin/koha/opac-user.pl">[% INCLUDE 'patron-title.inc' patron = logged_in_user %]</a>
+            </li>
+            <li class="breadcrumb-item active">
+                <a href="#" aria-current="page">Payment</a>
+            </li>
+        </ol>
+    </nav> <!-- /#breadcrumbs -->
 
     <div class="container-fluid">
-        <div class="row-fluid">
-            <div class="span2">
+        <div class="row">
+            <div class="col-lg-2">
                 <div id="navigation">
                     [% INCLUDE 'navigation.inc' IsPatronPage=1 %]
                 </div>
             </div>
-            <div class="span10">
-                <div id="useraccount" class="maincontent">
+            <div class="col-10 order-first order-lg-2">
+                <div id="userpasswd" class="maincontent">
                     <div class="alert alert-info">
                         [% IF token %]
                             Your payment is still processing. Please check back later to ensure your payment has gone thought.
@@ -31,11 +39,33 @@
                             You payment is complete!
                         [% END %]
                     </div>
-                </div> <!-- / #useraccount -->
-            </div> <!-- / .span10 -->
-        </div> <!-- / .row-fluid -->
+                </div>
+            </div> <!-- / .col-10 -->
+        </div> <!-- / .row -->
     </div> <!-- / .container-fluid -->
 </div> <!-- / .main -->
 
+
+
 [% INCLUDE 'opac-bottom.inc' %]
-[% BLOCK jsinclude %][% END %]
+[% BLOCK jsinclude %]
+    [% Asset.js("lib/jquery/plugins/jquery.validate.min.js") | $raw %]
+    [% PROCESS 'password_check.inc' new_password => 'Newkey', minPasswordLength => logged_in_user.category.effective_min_password_length, RequireStrongPassword => logged_in_user.category.effective_require_strong_password %]
+    <script>
+        $(document).ready(function() {
+            $("#mainform").validate({
+                rules: {
+                    Newkey: {
+                        required: true,
+                        password_strong: true,
+                        password_no_spaces: true
+                    },
+                    Confirm: {
+                        required: true,
+                        password_match: true
+                    }
+                }
+            });
+        });
+    </script>
+[% END %]
