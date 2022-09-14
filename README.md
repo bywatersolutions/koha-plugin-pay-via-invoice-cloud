@@ -1,6 +1,6 @@
-# Pay via Cloud Invoice
+# Pay via Invoice Cloud
 
-This plugin allows Koha to accept payments from the OPAC using Cloud Invoice as a payment processor
+This plugin allows Koha to accept payments from the OPAC using Invoice Cloud as a payment processor
 
 # Downloading
 

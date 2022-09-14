@@ -2,7 +2,7 @@
   "name": "koha-plugin-pay-via-invoice-cloud",
   "version": "1.0.5",
   "previous_version": "1.0.4",
-  "description": "Koha Cloud Invoice OPAC Online Payment Plugin",
+  "description": "Koha Invoice Cloud OPAC Online Payment Plugin",
   "devDependencies": {
     "gulp": "^3.9.1",
     "gulp-cli": "^1.2.2",

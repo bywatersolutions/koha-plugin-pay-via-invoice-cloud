@@ -23,10 +23,10 @@ our $VERSION = "{VERSION}";
 
 ## Here is our metadata, some keys are required, some are optional
 our $metadata = {
-    name        => 'Pay Via Cloud Invoice',
+    name        => 'Pay Via Invoice Cloud',
     author      => 'Kyle M Hall',
     description =>
-      'This plugin enables online OPAC fee payments via Cloud Invoice',
+      'This plugin enables online OPAC fee payments via Invoice Cloud',
     date_authored   => '2020-04-14',
     date_updated    => '1900-01-01',
     minimum_version => '19.05.00.000',
@@ -143,7 +143,7 @@ sub opac_online_payment_begin {
     unless ( $response->is_success ) {
         warn "REQUEST: " . $req->as_string;
         warn "RESPONSE: " . $response->as_string;
-        die "Failed to connect to Cloud Invoice! " . $response->status_line;
+        die "Failed to connect to Invoice Cloud! " . $response->status_line;
     }
     my $message = from_json( $response->decoded_content );
     warn "RESPONSE MESSAGE: " . Data::Dumper::Dumper($message);

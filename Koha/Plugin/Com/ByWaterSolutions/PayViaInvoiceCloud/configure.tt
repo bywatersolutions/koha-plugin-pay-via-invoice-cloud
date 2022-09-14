@@ -1,16 +1,16 @@
 [% INCLUDE 'doc-head-open.inc' %]
- <title>Koha: Plugin: Pay Via Cloud Invoice: Configuration</title>
+ <title>Koha: Plugin: Pay Via Invoice Cloud: Configuration</title>
 [% INCLUDE 'doc-head-close.inc' %]
 </head>
 <body>
 [% INCLUDE 'header.inc' %]
 [% INCLUDE 'cat-search.inc' %]
 
-<div id="breadcrumbs"><a href="/cgi-bin/koha/mainpage.pl">Home</a> &rsaquo; <a href="/cgi-bin/koha/plugins/plugins-home.pl">Plugins</a> &rsaquo; Pay Via Cloud Invoice &rsaquo; Configuration</div>
+<div id="breadcrumbs"><a href="/cgi-bin/koha/mainpage.pl">Home</a> &rsaquo; <a href="/cgi-bin/koha/plugins/plugins-home.pl">Plugins</a> &rsaquo; Pay Via Invoice Cloud &rsaquo; Configuration</div>
 
 <div id="doc3">
     <!-- We can access our own plugins resource files using the PLUGIN_PATH variable. -->
-    <h3>Koha: Plugin: Pay Via Cloud Invoice: Configuration</h3>
+    <h3>Koha: Plugin: Pay Via Invoice Cloud: Configuration</h3>
 
 	<form method='get'>
 	  <input type="hidden" name="class" value="[% CLASS %]"/>
