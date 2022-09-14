@@ -1,10 +1,10 @@
 {
   "/payment":{
     "post":{
-      "x-mojo-to":"Com::ByWaterSolutions::PayViaCloudInvoice::API#handle_payment",
+      "x-mojo-to":"Com::ByWaterSolutions::PayViaInvoiceCloud::API#handle_payment",
       "operationId":"handlePayment",
       "tags":[
-        "cloud-invoice"
+        "invoice-cloud"
       ],
       "parameters": [
         {

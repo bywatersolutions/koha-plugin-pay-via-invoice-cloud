@@ -1,5 +1,5 @@
 {
-  "name": "koha-plugin-pay-via-cloud-invoice",
+  "name": "koha-plugin-pay-via-invoice-cloud",
   "version": "1.0.5",
   "previous_version": "1.0.4",
   "description": "Koha Cloud Invoice OPAC Online Payment Plugin",
@@ -14,14 +14,14 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/bywatersolutions/koha-plugin-pay-via-cloud-invoice.git"
+    "url": "git+https://github.com/bywatersolutions/koha-plugin-pay-via-invoice-cloud.git"
   },
   "author": "Kyle M Hall <kyle@bywatersolutions.com>",
   "license": "GPL-3.0",
   "bugs": {
-    "url": "https://github.com/bywatersolutions/koha-plugin-pay-via-cloud-invoice/issues"
+    "url": "https://github.com/bywatersolutions/koha-plugin-pay-via-invoice-cloud/issues"
   },
-  "homepage": "https://github.com/bywatersolutions/koha-plugin-pay-via-cloud-invoice#readme",
+  "homepage": "https://github.com/bywatersolutions/koha-plugin-pay-via-invoice-cloud#readme",
   "dependencies": {
     "datetime": "0.0.3",
     "gulp-replace": "^0.6.1",

@@ -1,4 +1,4 @@
-package Koha::Plugin::Com::ByWaterSolutions::PayViaCloudInvoice::API;
+package Koha::Plugin::Com::ByWaterSolutions::PayViaInvoiceCloud::API;
 
 use Modern::Perl;
 
@@ -58,7 +58,7 @@ sub handle_payment {
             $payment = $account->pay(
                 {
                     amount     => $amount,
-                    note       => 'Paid via CloudInvoice',
+                    note       => 'Paid via InvoiceCloud',
                     library_id => $patron->branchcode,
                     lines      => \@lines,
                 }

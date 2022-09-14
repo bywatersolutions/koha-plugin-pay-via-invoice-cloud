@@ -4,7 +4,7 @@ This plugin allows Koha to accept payments from the OPAC using Cloud Invoice as 
 
 # Downloading
 
-From the [release page](https://github.com/bywatersolutions/koha-plugin-pay-via-cloud-invoice/releases) you can download the relevant *.kpz file
+From the [release page](https://github.com/bywatersolutions/koha-plugin-pay-via-invoice-cloud/releases) you can download the relevant *.kpz file
 
 # Installing
 

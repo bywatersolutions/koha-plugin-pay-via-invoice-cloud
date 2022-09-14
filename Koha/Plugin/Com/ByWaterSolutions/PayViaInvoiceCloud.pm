@@ -1,4 +1,4 @@
-package Koha::Plugin::Com::ByWaterSolutions::PayViaCloudInvoice;
+package Koha::Plugin::Com::ByWaterSolutions::PayViaInvoiceCloud;
 
 use Modern::Perl;
 
@@ -90,9 +90,9 @@ sub opac_online_payment_begin {
       sprintf( "%.2f", sum( map { $_->amountoutstanding } @accountlines ) );
 
     my $return_url = C4::Context->preference('OPACBaseURL')
-      . "/cgi-bin/koha/opac-account-pay-return.pl?payment_method=Koha::Plugin::Com::ByWaterSolutions::PayViaCloudInvoice&token=$token";
+      . "/cgi-bin/koha/opac-account-pay-return.pl?payment_method=Koha::Plugin::Com::ByWaterSolutions::PayViaInvoiceCloud&token=$token";
     my $postback_url = C4::Context->preference('OPACBaseURL')
-      . "/api/v1/contrib/cloudinvoice/payment";
+      . "/api/v1/contrib/invoicecloud/payment";
 
     my $data = {
         "CreateCustomerRecord" => JSON::true,
@@ -201,7 +201,7 @@ sub api_routes {
 sub api_namespace {
     my ($self) = @_;
 
-    return 'cloudinvoice';
+    return 'invoicecloud';
 }
 
 sub configure {
