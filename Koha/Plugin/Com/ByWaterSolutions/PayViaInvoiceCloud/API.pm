@@ -14,8 +14,16 @@ sub handle_payment {
 
     my $borrowernumber = $params->{BillerReference};
     my $token          = $params->{InvoiceNumber};
-    warn "TOKEN: $token";
     my $amount         = $params->{PaymentAmount};
+    my $approved       = $params->{Approved};
+
+    warn "TOKEN: $token";
+
+    # No point in looking looking up patron if payment failed, just need to delete the payment token
+    if ( $approved eq "False" ) {
+        $dbh->do( "DELETE FROM cloud_invoice_plugin_tokens WHERE token = ?", undef, $token );
+        return $c->render( status => 204, text => q{} );
+    }
 
     my $dbh      = C4::Context->dbh;
     my $query    = "SELECT * FROM cloud_invoice_plugin_tokens WHERE token = ?";
@@ -52,8 +60,7 @@ sub handle_payment {
     my $payment;
     $schema->txn_do(
         sub {
-            $dbh->do( "DELETE FROM cloud_invoice_plugin_tokens WHERE token = ?",
-                undef, $token );
+            $dbh->do( "DELETE FROM cloud_invoice_plugin_tokens WHERE token = ?", undef, $token );
 
             $payment = $account->pay(
                 {
