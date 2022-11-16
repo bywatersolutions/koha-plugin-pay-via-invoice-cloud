@@ -42,6 +42,8 @@ sub handle_payment {
     my $patron = Koha::Patrons->find($borrowernumber);
     warn "PATRON: $patron";
 
+    C4::Context->set_userenv($patron->id,$patron->userid,$patron->cardnumber,'InvoiceCloud Payment','Paid via API', $patron->branchcode, '', 0, '', '');
+
     return $c->render(
         status  => 404,
         openapi => { error => "Patron not found" }
