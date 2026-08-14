@@ -12,24 +12,47 @@
     <!-- We can access our own plugins resource files using the PLUGIN_PATH variable. -->
     <h3>Koha: Plugin: Pay Via Invoice Cloud: Configuration</h3>
 
-	<form method='get'>
+	[% UNLESS encryption_available %]
+	  <div class="dialog alert">
+		<strong>Koha's encryption is not available.</strong>
+		The API key can only be stored in cleartext until an <code>encryption_key</code> is set in
+		<code>koha-conf.xml</code>. Add one (we recommend at least 32 bytes, for example
+		<code>pwgen 32 1</code>), restart Koha, then reopen this page and the stored key will be
+		encrypted automatically.
+	  </div>
+	[% ELSIF api_key_is_set AND NOT api_key_is_encrypted %]
+	  <div class="dialog alert">
+		<strong>The stored API key is not encrypted.</strong>
+		Re-enter it below and save to store it encrypted.
+	  </div>
+	[% END %]
+
+	<form method='post'>
 	  <input type="hidden" name="class" value="[% CLASS %]"/>
 	  <input type="hidden" name="method" value="[% METHOD %]"/>
 	  <input type="hidden" name="save" value="1" />
+	  [% IF csrf_token %]<input type="hidden" name="csrf_token" value="[% csrf_token | html %]" />[% END %]
 
 	  <div class="form-group">
-		<label for="orderType">Application API key: </label>
-		<input type="text" class="form-control" name="api_key" value="[% api_key %]" />
+		<label for="api_key">Application API key: </label>
+		<input type="password" class="form-control" id="api_key" name="api_key" value="" autocomplete="new-password" />
+		<p class="help-block">
+		  [% IF api_key_is_set %]
+			An API key is already stored. Leave this blank to keep it, or enter a new one to replace it.
+		  [% ELSE %]
+			No API key is stored yet.
+		  [% END %]
+		</p>
 	  </div>
 
 	  <div class="form-group">
-		<label for="key">Invoice Type ID: </label>
-		<input type="text" class="form-control" name="invoice_type_id" value="[% invoice_type_id %]" />
+		<label for="invoice_type_id">Invoice Type ID: </label>
+		<input type="text" class="form-control" id="invoice_type_id" name="invoice_type_id" value="[% invoice_type_id | html %]" />
 	  </div>
 
 	  <div class="form-group">
-		<label for="key">Credit Card Service Fee: </label>
-		<input type="text" class="form-control" name="cc_service_fee" value="[% cc_service_fee %]" />
+		<label for="cc_service_fee">Credit Card Service Fee: </label>
+		<input type="text" class="form-control" id="cc_service_fee" name="cc_service_fee" value="[% cc_service_fee | html %]" />
 	  </div>
 
 	  <button type="submit" class="btn btn-default">Save</button>
