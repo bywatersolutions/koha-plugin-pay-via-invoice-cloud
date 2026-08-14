@@ -241,6 +241,13 @@ line. Either way, no cardholder data is involved.
 
 ### 5.3 Configuration and credentials
 
+> **Pending change.** The behaviour described below is what this document's reviewed commit does.
+> An unreleased change encrypts the API key at rest with `Koha::Encryption` (AES-256-CBC), migrating
+> existing cleartext values on plugin upgrade, and moves the configuration form to `POST` with the
+> credential no longer rendered into the page. This section and the §8 rows must be rewritten, and
+> every code link re-pinned, when that change is released. Until then, read this section as accurate
+> for the reviewed commit only.
+
 Stored via [`store_data`][pm225-231], which writes to Koha's `plugin_data` table.
 
 | Credential | Stored in | Protection at rest | Visible to | Code |
@@ -256,7 +263,8 @@ member's browser URL, browser history, and the web server access log. See §8.
 The API key is [base64-encoded][pm134] for HTTP Basic authentication. Base64 is an encoding, not
 encryption, and provides no protection.
 
-**No cardholder data is held in configuration.**
+**No cardholder data is held in configuration.** Encrypting the API key does not change any
+determination in §1 — the credential is not cardholder data, and this plugin never had any.
 
 ### 5.4 Retention and disposal
 
@@ -320,7 +328,7 @@ cardholder data.
 | The payment notification endpoint declares no `x-koha-authorization` block and verifies no shared secret or signature, and the credited amount is taken from the caller-supplied `PaymentAmount` without reconciliation against the accountlines' outstanding total. | [`openapi.json`][oa], [`API.pm:12`][api12], [`:17`][api17], [`:70`][api70] | Does not affect the cardholder data determination in §1 — no card data is involved. Affects the integrity of the payment record. | Open |
 | Debug logging is unconditional. [`$ENABLE_DEBUGGING`][pm37] is declared but never checked, so patron PII and the inbound card brand are written to the application log on every transaction. | [`pm:131`][pm131], [`API.pm:13`][api13], [`:60-61`][api60-61] | This is what makes row 4 of §1 read "Yes". | Open |
 | On provisioning failure the full HTTP request, including the `Authorization: Basic <api key>` header, is written to the application log. | [`PayViaInvoiceCloud.pm:144`][pm144] | Credential exposure, not cardholder data. | Open |
-| The configuration form submits by `GET` with the API key in a plain text field, placing it in staff browser URLs, browser history, and web server access logs. | [`configure.tt:15`][conf15], [`:22`][conf22] | Credential exposure, not cardholder data. | Open |
+| The configuration form submits by `GET` with the API key in a plain text field, placing it in staff browser URLs, browser history, and web server access logs. | [`configure.tt:15`][conf15], [`:22`][conf22] | Credential exposure, not cardholder data. | Remediated in an unreleased change — form moved to `POST` with a CSRF token, and the credential is no longer rendered into the page |
 | Token rows for abandoned checkouts are never purged; `created_on` is recorded but never read. | [`PayViaInvoiceCloud.pm:82-87`][pm82-87] | Affects §5.4. No cardholder data is involved. | Open |
 | The plugin's table is not dropped on uninstall. | [`PayViaInvoiceCloud.pm:260-262`][pm260-262] | Affects §5.4. | Open |
 | `accountlines.note` is the fixed literal `Paid via InvoiceCloud` and records no transaction reference, so a credit in Koha cannot be traced back to a specific Invoice Cloud payment from Koha's own records. | [`API.pm:71`][api71] | Affects §5.1. Reconciliation depends entirely on Invoice Cloud's records. | Open |
@@ -359,6 +367,7 @@ path.
 | Date | Version | Commit | Reviewer | Change |
 |---|---|---|---|---|
 | 2026-08-13 | v1.2.1 | [`46f06e6`][commit] | Kyle M Hall | Initial review |
+| 2026-08-13 | unreleased | pending | Kyle M Hall | Noted the pending credential-encryption change in §5.3 and §8. **Not yet re-reviewed** — when that change is released, re-derive §5.3, §8 and every code link against the release commit. |
 
 ---
 
