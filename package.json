@@ -1,6 +1,6 @@
 {
   "name": "koha-plugin-pay-via-invoice-cloud",
-  "version": "1.0.5",
+  "version": "1.3.0",
   "previous_version": "1.0.4",
   "description": "Koha Invoice Cloud OPAC Online Payment Plugin",
   "devDependencies": {
