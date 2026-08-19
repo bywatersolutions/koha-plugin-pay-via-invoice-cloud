@@ -17,15 +17,17 @@
 
 use Modern::Perl;
 
-use Test::More tests => 12;
+use Test::More tests => 13;
 use Test::Exception;
 
 use File::Slurp qw( read_file );
 
+use C4::Context;
 use Koha::Database;
 use Koha::Encryption;
 
 use t::lib::Mocks;
+use t::lib::TestBuilder;
 
 use Koha::Plugin::Com::ByWaterSolutions::PayViaInvoiceCloud;
 
@@ -224,6 +226,37 @@ subtest 'a blank credential does not overwrite the stored one' => sub {
     my $template = read_file( $plugin->mbf_path('configure.tt') );
     unlike( $template, qr/name="api_key"[^>]*value="\[%\s*api_key/,
         'configure.tt never renders the stored credential back into the form field' );
+
+    $schema->storage->txn_rollback;
+};
+
+subtest 'cronjob_nightly() removes only abandoned tokens' => sub {
+    plan tests => 3;
+    $schema->storage->txn_begin;
+
+    my $builder = t::lib::TestBuilder->new;
+    my $patron  = $builder->build_object( { class => 'Koha::Patrons' } );
+
+    my $dbh = C4::Context->dbh;
+    $dbh->do(
+        q{INSERT INTO cloud_invoice_plugin_tokens ( token, borrowernumber, created_on, accountline_ids ) VALUES ( ?, ?, DATE_SUB(NOW(), INTERVAL 8 DAY), '' )},
+        undef, 'stale-token', $patron->borrowernumber
+    );
+    $dbh->do(
+        q{INSERT INTO cloud_invoice_plugin_tokens ( token, borrowernumber, created_on, accountline_ids ) VALUES ( ?, ?, NOW(), '' )},
+        undef, 'fresh-token', $patron->borrowernumber
+    );
+
+    $plugin->cronjob_nightly;
+
+    my $count = sub {
+        $dbh->selectrow_array( q{SELECT COUNT(*) FROM cloud_invoice_plugin_tokens WHERE token = ?}, undef, $_[0] );
+    };
+    is( $count->('stale-token'), 0, 'a week-old token from an abandoned checkout is removed' );
+    is( $count->('fresh-token'), 1, 'a current token is left alone' );
+
+    $plugin->cronjob_nightly;
+    is( $count->('fresh-token'), 1, 'running the job again changes nothing' );
 
     $schema->storage->txn_rollback;
 };
