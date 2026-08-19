@@ -285,7 +285,8 @@ determination in §1 — the credential is not cardholder data, and this plugin 
 
 ### 5.4 Retention and disposal
 
-- **Scheduled purge:** None. This plugin ships no cron job, TTL, or cleanup routine.
+- **Scheduled purge:** As of an unreleased change, a nightly job (Koha's `cronjob_nightly` hook)
+  removes tokens older than seven days. At the reviewed commit there was none.
 - **Removed on payment notification:** the `cloud_invoice_plugin_tokens` row, whether the payment was
   [approved][api66] or [declined][api26].
 - **Records that accumulate:** token rows for checkouts the patron abandoned before Invoice Cloud
@@ -347,7 +348,7 @@ cardholder data.
 | The stored API key was held in cleartext in `plugin_data`. | [`PayViaInvoiceCloud.pm:247`][pm247] | Credential exposure, not cardholder data. | **Remediated in v1.3.0** — encrypted at rest with `Koha::Encryption`, existing values migrated on upgrade. See §5.3 |
 | On provisioning failure the full HTTP request, including the `Authorization: Basic <api key>` header, is written to the application log. | [`PayViaInvoiceCloud.pm:154`][pm154] | Credential exposure, not cardholder data. | Open |
 | The configuration form submits by `GET` with the API key in a plain text field, placing it in staff browser URLs, browser history, and web server access logs. | [`configure.tt:30`][conf30], [`:38`][conf38] | Credential exposure, not cardholder data. | **Remediated in v1.3.0** — form moved to `POST` with a CSRF token, and the credential is no longer rendered into the page |
-| Token rows for abandoned checkouts are never purged; `created_on` is recorded but never read. | [`PayViaInvoiceCloud.pm:91-96`][pm91-96] | Affects §5.4. No cardholder data is involved. | Open |
+| Token rows for abandoned checkouts are never purged; `created_on` is recorded but never read. | [`PayViaInvoiceCloud.pm:91-96`][pm91-96] | Affects §5.4. No cardholder data is involved. | **Remediated in an unreleased change** — a nightly job removes tokens older than seven days |
 | The plugin's table is not dropped on uninstall. | [`PayViaInvoiceCloud.pm:435-437`][pm435-437] | Affects §5.4. | Open |
 | `accountlines.note` is the fixed literal `Paid via InvoiceCloud` and records no transaction reference, so a credit in Koha cannot be traced back to a specific Invoice Cloud payment from Koha's own records. | [`API.pm:71`][api71] | Affects §5.1. Reconciliation depends entirely on Invoice Cloud's records. | Open |
 
